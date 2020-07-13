@@ -83,6 +83,7 @@ pub enum SyntaxKind {
     STRUCT_KW,
     NEVER_KW,
     PUB_KW,
+    TYPE_KW,
     PACKAGE_KW,
     SUPER_KW,
     SELF_KW,
@@ -344,6 +345,9 @@ macro_rules! T {
     (pub) => {
         $crate::SyntaxKind::PUB_KW
     };
+    (type) => {
+        $crate::SyntaxKind::TYPE_KW
+    };
     (package) => {
         $crate::SyntaxKind::PACKAGE_KW
     };
@@ -394,6 +398,7 @@ impl SyntaxKind {
             | STRUCT_KW
             | NEVER_KW
             | PUB_KW
+            | TYPE_KW
             | PACKAGE_KW
             | SUPER_KW
             | SELF_KW
@@ -538,6 +543,7 @@ impl SyntaxKind {
             STRUCT_KW => &SyntaxInfo { name: "STRUCT_KW" },
             NEVER_KW => &SyntaxInfo { name: "NEVER_KW" },
             PUB_KW => &SyntaxInfo { name: "PUB_KW" },
+            TYPE_KW => &SyntaxInfo { name: "TYPE_KW" },
             PACKAGE_KW => &SyntaxInfo { name: "PACKAGE_KW" },
             SUPER_KW => &SyntaxInfo { name: "SUPER_KW" },
             SELF_KW => &SyntaxInfo { name: "SELF_KW" },
@@ -620,6 +626,7 @@ impl SyntaxKind {
             "struct" => STRUCT_KW,
             "never" => NEVER_KW,
             "pub" => PUB_KW,
+            "type" => TYPE_KW,
             "package" => PACKAGE_KW,
             "super" => SUPER_KW,
             "self" => SELF_KW,

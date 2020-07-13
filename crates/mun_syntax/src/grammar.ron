@@ -91,6 +91,7 @@ Grammar(
         "struct",
         "never",
         "pub",
+        "type",
 
         "package",
         "super",
