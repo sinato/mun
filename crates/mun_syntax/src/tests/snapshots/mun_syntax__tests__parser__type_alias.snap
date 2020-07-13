@@ -1,0 +1,63 @@
+---
+source: crates/mun_syntax/src/tests/parser.rs
+expression: "fn foo() {\n    type Typename = i32;\n    type Typename2 = Typename;\n    let a:Typename2;\n}"
+---
+SOURCE_FILE@[0; 89)
+  FUNCTION_DEF@[0; 89)
+    FN_KW@[0; 2) "fn"
+    WHITESPACE@[2; 3) " "
+    NAME@[3; 6)
+      IDENT@[3; 6) "foo"
+    PARAM_LIST@[6; 8)
+      L_PAREN@[6; 7) "("
+      R_PAREN@[7; 8) ")"
+    WHITESPACE@[8; 9) " "
+    BLOCK_EXPR@[9; 89)
+      L_CURLY@[9; 10) "{"
+      WHITESPACE@[10; 15) "\n    "
+      TYPE_ALIAS_DEF@[15; 35)
+        TYPE_KW@[15; 19) "type"
+        WHITESPACE@[19; 20) " "
+        NAME@[20; 28)
+          IDENT@[20; 28) "Typename"
+        WHITESPACE@[28; 29) " "
+        EQ@[29; 30) "="
+        WHITESPACE@[30; 31) " "
+        PATH_TYPE@[31; 34)
+          PATH@[31; 34)
+            PATH_SEGMENT@[31; 34)
+              NAME_REF@[31; 34)
+                IDENT@[31; 34) "i32"
+        SEMI@[34; 35) ";"
+      WHITESPACE@[35; 40) "\n    "
+      TYPE_ALIAS_DEF@[40; 66)
+        TYPE_KW@[40; 44) "type"
+        WHITESPACE@[44; 45) " "
+        NAME@[45; 54)
+          IDENT@[45; 54) "Typename2"
+        WHITESPACE@[54; 55) " "
+        EQ@[55; 56) "="
+        WHITESPACE@[56; 57) " "
+        PATH_TYPE@[57; 65)
+          PATH@[57; 65)
+            PATH_SEGMENT@[57; 65)
+              NAME_REF@[57; 65)
+                IDENT@[57; 65) "Typename"
+        SEMI@[65; 66) ";"
+      WHITESPACE@[66; 71) "\n    "
+      LET_STMT@[71; 87)
+        LET_KW@[71; 74) "let"
+        WHITESPACE@[74; 75) " "
+        BIND_PAT@[75; 76)
+          NAME@[75; 76)
+            IDENT@[75; 76) "a"
+        COLON@[76; 77) ":"
+        PATH_TYPE@[77; 86)
+          PATH@[77; 86)
+            PATH_SEGMENT@[77; 86)
+              NAME_REF@[77; 86)
+                IDENT@[77; 86) "Typename2"
+        SEMI@[86; 87) ";"
+      WHITESPACE@[87; 88) "\n"
+      R_CURLY@[88; 89) "}"
+

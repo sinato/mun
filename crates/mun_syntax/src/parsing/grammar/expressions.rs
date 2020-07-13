@@ -71,6 +71,12 @@ pub(super) fn stmt(p: &mut Parser) {
         return;
     }
 
+    // Encounters type keyword, so we know it's a type alias stmt
+    if p.at(T![type]) {
+        type_stmt(p, m);
+        return;
+    }
+
     let (cm, _blocklike) = expr_stmt(p);
     let kind = cm.as_ref().map(|cm| cm.kind()).unwrap_or(ERROR);
 
@@ -100,6 +106,32 @@ fn let_stmt(p: &mut Parser, m: Marker) {
 
     p.eat(T![;]); // Semicolon at the end of statement belongs to the statement
     m.complete(p, LET_STMT);
+}
+
+fn type_stmt(p: &mut Parser, m: Marker) {
+    assert!(p.at(T![type]));
+    p.bump(T![type]);
+
+    name(p);
+
+    // test type_item_type_params
+    // type Result<T> = ();
+    // type_params::opt_type_param_list(p);
+
+    /*
+    if p.at(T![:]) {
+        type_params::bounds(p);
+    }
+    */
+
+    // test type_item_where_clause
+    // type Foo where Foo: Copy = ();
+    // type_params::opt_where_clause(p);
+    if p.eat(T![=]) {
+        types::type_(p);
+    }
+    p.expect(T![;]);
+    m.complete(p, TYPE_ALIAS_DEF);
 }
 
 pub(super) fn expr(p: &mut Parser) {

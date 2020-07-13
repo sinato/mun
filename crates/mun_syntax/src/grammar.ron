@@ -132,6 +132,7 @@ Grammar(
         "RECORD_FIELD_DEF",
         "TUPLE_FIELD_DEF_LIST",
         "TUPLE_FIELD_DEF",
+        "TYPE_ALIAS_DEF",
 
         "PATH_TYPE",
         "NEVER_TYPE",

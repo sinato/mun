@@ -229,6 +229,19 @@ fn if_expr() {
 }
 
 #[test]
+fn type_alias() {
+    snapshot_test(
+        r#"
+    fn foo() {
+        type Typename = i32;
+        type Typename2 = Typename;
+        let a:Typename2;
+    }
+    "#,
+    )
+}
+
+#[test]
 fn block_expr() {
     snapshot_test(
         r#"
