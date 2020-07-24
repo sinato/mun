@@ -297,6 +297,7 @@ pub enum Expr {
         fields: Vec<RecordLitField>,
         spread: Option<ExprId>,
     },
+    TypeAlias,
     Field {
         expr: ExprId,
         name: Name,
@@ -349,6 +350,7 @@ impl Expr {
         match self {
             Expr::Missing => {}
             Expr::Path(_) => {}
+            Expr::TypeAlias => {}
             Expr::Block { statements, tail } => {
                 for stmt in statements {
                     match stmt {

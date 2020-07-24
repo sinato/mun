@@ -1,0 +1,7 @@
+---
+source: crates/mun_hir/src/ty/tests.rs
+expression: "fn foo() {\n    type Typename = i32;\n    type Typename2 = Typename;\n    let a: Typename2;\n}"
+---
+[78; 87): undefined type
+[9; 90) '{     ...me2; }': nothing
+[75; 76) 'a': {unknown}

@@ -114,19 +114,6 @@ fn type_stmt(p: &mut Parser, m: Marker) {
 
     name(p);
 
-    // test type_item_type_params
-    // type Result<T> = ();
-    // type_params::opt_type_param_list(p);
-
-    /*
-    if p.at(T![:]) {
-        type_params::bounds(p);
-    }
-    */
-
-    // test type_item_where_clause
-    // type Foo where Foo: Copy = ();
-    // type_params::opt_where_clause(p);
     if p.eat(T![=]) {
         types::type_(p);
     }

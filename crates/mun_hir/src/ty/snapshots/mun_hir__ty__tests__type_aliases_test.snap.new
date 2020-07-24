@@ -1,0 +1,11 @@
+---
+source: crates/mun_hir/src/ty/tests.rs
+expression: "fn foo() {\n    let a: i32;\n    a = 10;\n    let b = a;\n}"
+---
+[9; 55) '{     ...= a; }': nothing
+[19; 20) 'a': i32
+[31; 32) 'a': i32
+[31; 37) 'a = 10': nothing
+[35; 37) '10': i32
+[47; 48) 'b': i32
+[51; 52) 'a': i32

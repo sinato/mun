@@ -181,6 +181,7 @@ impl<'d, D: HirDatabase> ExprValidator<'d, D> {
             }
             Expr::Literal(_) => {}
             Expr::Missing => {}
+            Expr::TypeAlias => {}
         }
     }
 

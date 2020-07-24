@@ -99,13 +99,6 @@ fn infer_invalid_struct_type() {
 fn infer_conditional_return() {
     infer_snapshot(
         r#"
-    fn foo(a:int)->i32 {
-        if a > 4 {
-            return 4;
-        }
-        a
-    }
-
     fn bar(a:i32)->i32 {
         if a > 4 {
             return 4;
@@ -388,6 +381,32 @@ fn extern_fn() {
     struct S;
     extern fn with_non_primitive(s:S);  // extern functions can only have primitives as parameters
     extern fn with_non_primitive_return() -> S;  // extern functions can only have primitives as parameters
+    "#,
+    )
+}
+
+#[test]
+fn type_aliases_test() {
+    infer_snapshot(
+        r#"
+    fn foo() {
+        let a: i32;
+        a = 10;
+        let b = a;
+    }
+    "#,
+    )
+}
+
+#[test]
+fn type_aliases() {
+    infer_snapshot(
+        r#"
+    fn foo() {
+        type Typename = i32;
+        type Typename2 = Typename;
+        let a: Typename2;
+    }
     "#,
     )
 }

@@ -289,7 +289,9 @@ impl<'a, D: HirDatabase> InferenceResultBuilder<'a, D> {
         check_params: &CheckParams,
     ) -> Ty {
         let body = Arc::clone(&self.body); // avoid borrow checker problem
+        println!("body {:?}", &body[tgt_expr]);
         let ty = match &body[tgt_expr] {
+            Expr::TypeAlias => Ty::Unknown,
             Expr::Missing => Ty::Unknown,
             Expr::Path(p) => {
                 // FIXME this could be more efficient...
