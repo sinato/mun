@@ -141,6 +141,7 @@ fn compute_block_scopes(
                 scopes.set_scope(*expr, scope);
                 compute_expr_scopes(*expr, body, scopes, scope);
             }
+            Statement::TypeAlias => println!("TODO: compute_block_scopes"),
         }
     }
     if let Some(expr) = tail {

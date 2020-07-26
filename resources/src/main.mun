@@ -1,0 +1,5 @@
+pub fn main() -> i64 {
+    let a = 10;
+    let b = a + 1;
+    b + 3
+}

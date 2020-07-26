@@ -1,7 +1,14 @@
 ---
 source: crates/mun_hir/src/ty/tests.rs
-expression: "fn foo() {\n    type Typename = i32;\n    type Typename2 = Typename;\n    let a: Typename2;\n}"
+expression: "fn foo() -> i32 {\n    type Ty = i32;\n    let a = 10;\n    let b = a + 1;\n    a + b\n}"
 ---
-[78; 87): undefined type
-[9; 90) '{     ...me2; }': nothing
-[75; 76) 'a': {unknown}
+[16; 83) '{     ... + b }': i32
+[45; 46) 'a': i32
+[49; 51) '10': i32
+[61; 62) 'b': i32
+[65; 66) 'a': i32
+[65; 70) 'a + 1': i32
+[69; 70) '1': i32
+[76; 77) 'a': i32
+[76; 81) 'a + b': i32
+[80; 81) 'b': i32

@@ -1,0 +1,9 @@
+---
+source: crates/mun_codegen/src/test.rs
+expression: "pub fn main() -> i64 {\n    type ty = i64;\n    let a: ty = 10;\n    a\n}"
+---
+; == FILE IR =====================================
+error 3:12: undefined type
+
+; == GROUP IR ====================================
+

@@ -79,6 +79,7 @@ impl ModuleData {
         let mut data = ModuleData::default();
         let loc_ctx = LocationCtx::new(db, file_id);
         let mut definition_by_name = FxHashMap::default();
+        // println!("module_data!!!!!!!!!!!!!");
         for item in items.items().iter() {
             match item {
                 RawFileItem::Definition(def) => {
@@ -108,6 +109,7 @@ impl ModuleData {
                 }
             };
         }
+        // println!("module_data end!!!!!!!!!!!!!");
         Arc::new(data)
     }
 

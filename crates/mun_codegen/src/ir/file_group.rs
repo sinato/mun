@@ -34,6 +34,7 @@ pub(crate) fn ir_query(db: &impl IrDatabase, file_id: hir::FileId) -> Arc<FileGr
     let mut intrinsics_map = BTreeMap::new();
     let mut needs_alloc = false;
 
+    // println!("group ir query start!!!!!!!!!!!!!!");
     // Collect all intrinsic functions, wrapper function, and generate struct declarations.
     for def in db.module_data(file_id).definitions() {
         match def {
@@ -59,6 +60,7 @@ pub(crate) fn ir_query(db: &impl IrDatabase, file_id: hir::FileId) -> Arc<FileGr
         }
     }
 
+    // println!("group ir query end1!!!!!!!!!!!!!!");
     // Collect all exposed functions' bodies.
     let mut dispatch_table_builder = DispatchTableBuilder::new(db, &llvm_module, &intrinsics_map);
     for def in db.module_data(file_id).definitions() {
@@ -70,6 +72,7 @@ pub(crate) fn ir_query(db: &impl IrDatabase, file_id: hir::FileId) -> Arc<FileGr
             }
         }
     }
+    // println!("group ir query end2!!!!!!!!!!!!!!");
 
     let dispatch_table = dispatch_table_builder.build();
 

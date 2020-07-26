@@ -118,7 +118,7 @@ fn type_stmt(p: &mut Parser, m: Marker) {
         types::type_(p);
     }
     p.expect(T![;]);
-    m.complete(p, TYPE_ALIAS_DEF);
+    m.complete(p, TYPE_ALIAS_STMT);
 }
 
 pub(super) fn expr(p: &mut Parser) {

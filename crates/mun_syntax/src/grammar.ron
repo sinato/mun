@@ -132,13 +132,13 @@ Grammar(
         "RECORD_FIELD_DEF",
         "TUPLE_FIELD_DEF_LIST",
         "TUPLE_FIELD_DEF",
-        "TYPE_ALIAS_DEF",
 
         "PATH_TYPE",
         "NEVER_TYPE",
 
         "LET_STMT",
         "EXPR_STMT",
+        "TYPE_ALIAS_STMT",
 
         "PATH_EXPR",
         "PREFIX_EXPR",
@@ -235,6 +235,15 @@ Grammar(
                 "TypeAscriptionOwner",
             ]
         ),
+        "TypeAliasStmt": (
+            options: [
+                ["pat", "Pat"],
+                ["initializer", "Expr"],
+            ],
+            traits: [
+                "TypeAscriptionOwner",
+            ]
+        ),
         "Condition": (
             options: [ "Pat", "Expr" ]
         ),
@@ -243,7 +252,7 @@ Grammar(
             options: [ ["expr", "Expr"] ]
         ),
         "Stmt": (
-            enum: ["LetStmt", "ExprStmt"]
+            enum: ["LetStmt", "ExprStmt", "TypeAliasStmt"]
         ),
 
         "LoopExpr": (

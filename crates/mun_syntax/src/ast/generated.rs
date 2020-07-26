@@ -1374,7 +1374,7 @@ pub struct Stmt {
 impl AstNode for Stmt {
     fn can_cast(kind: SyntaxKind) -> bool {
         match kind {
-            LET_STMT | EXPR_STMT => true,
+            LET_STMT | EXPR_STMT | TYPE_ALIAS_STMT => true,
             _ => false,
         }
     }
@@ -1393,6 +1393,7 @@ impl AstNode for Stmt {
 pub enum StmtKind {
     LetStmt(LetStmt),
     ExprStmt(ExprStmt),
+    TypeAliasStmt(TypeAliasStmt),
 }
 impl From<LetStmt> for Stmt {
     fn from(n: LetStmt) -> Stmt {
@@ -1404,12 +1405,20 @@ impl From<ExprStmt> for Stmt {
         Stmt { syntax: n.syntax }
     }
 }
+impl From<TypeAliasStmt> for Stmt {
+    fn from(n: TypeAliasStmt) -> Stmt {
+        Stmt { syntax: n.syntax }
+    }
+}
 
 impl Stmt {
     pub fn kind(&self) -> StmtKind {
         match self.syntax.kind() {
             LET_STMT => StmtKind::LetStmt(LetStmt::cast(self.syntax.clone()).unwrap()),
             EXPR_STMT => StmtKind::ExprStmt(ExprStmt::cast(self.syntax.clone()).unwrap()),
+            TYPE_ALIAS_STMT => {
+                StmtKind::TypeAliasStmt(TypeAliasStmt::cast(self.syntax.clone()).unwrap())
+            }
             _ => unreachable!(),
         }
     }
@@ -1511,6 +1520,42 @@ impl AstNode for TupleFieldDefList {
 impl TupleFieldDefList {
     pub fn fields(&self) -> impl Iterator<Item = TupleFieldDef> {
         super::children(self)
+    }
+}
+
+// TypeAliasStmt
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TypeAliasStmt {
+    pub(crate) syntax: SyntaxNode,
+}
+
+impl AstNode for TypeAliasStmt {
+    fn can_cast(kind: SyntaxKind) -> bool {
+        match kind {
+            TYPE_ALIAS_STMT => true,
+            _ => false,
+        }
+    }
+    fn cast(syntax: SyntaxNode) -> Option<Self> {
+        if Self::can_cast(syntax.kind()) {
+            Some(TypeAliasStmt { syntax })
+        } else {
+            None
+        }
+    }
+    fn syntax(&self) -> &SyntaxNode {
+        &self.syntax
+    }
+}
+impl ast::TypeAscriptionOwner for TypeAliasStmt {}
+impl TypeAliasStmt {
+    pub fn pat(&self) -> Option<Pat> {
+        super::child_opt(self)
+    }
+
+    pub fn initializer(&self) -> Option<Expr> {
+        super::child_opt(self)
     }
 }
 

@@ -98,6 +98,7 @@ impl<'a, 'b, D: IrDatabase> BodyIrGenerator<'a, 'b, D> {
     pub fn gen_fn_body(&mut self) {
         // Iterate over all parameters and their type and store them so we can reference them
         // later in code.
+        // println!("second gen body!!!");
         for (i, (pat, _ty)) in self.body.params().iter().enumerate() {
             let body = self.body.clone(); // Avoid borrow issues
 
@@ -122,6 +123,11 @@ impl<'a, 'b, D: IrDatabase> BodyIrGenerator<'a, 'b, D> {
                 ),
             }
         }
+        // println!("body_expr!!: {:#?}", self.body.body_expr());
+        // println!("body=============================================");
+        // println!("body_expr!!: {:#?}", self.body);
+        // println!("body=============================================");
+        // println!("body_expr!!: {:#?}", self.body[self.body.body_expr()]);
 
         // Generate code for the body of the function
         let ret_value = self.gen_expr(self.body.body_expr());
@@ -481,6 +487,10 @@ impl<'a, 'b, D: IrDatabase> BodyIrGenerator<'a, 'b, D> {
                 Statement::Expr(expr) => {
                     // No need to generate code after a statement that has a `never` return type.
                     self.gen_expr(*expr)?;
+                }
+                Statement::TypeAlias => {
+                    // TypeAlias statement is only used for type inference, not code generatrion.
+                    panic!("TODO: gen_block")
                 }
             };
         }

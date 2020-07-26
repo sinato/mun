@@ -57,6 +57,7 @@ pub(crate) fn gen_body<'a, 'b, D: IrDatabase>(
     type_table: &'b TypeTable,
     external_globals: ExternalGlobals,
 ) {
+    // println!("first gen body!!!");
     let mut code_gen = BodyIrGenerator::new(
         db,
         function,

@@ -289,9 +289,14 @@ impl<'a, D: HirDatabase> InferenceResultBuilder<'a, D> {
         check_params: &CheckParams,
     ) -> Ty {
         let body = Arc::clone(&self.body); // avoid borrow checker problem
-        println!("body {:?}", &body[tgt_expr]);
+                                           // ここまでtype def statementがきてない
+        println!("infer_expr_inner!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        println!("body: {:#?}", body[tgt_expr]);
         let ty = match &body[tgt_expr] {
-            Expr::TypeAlias => Ty::Unknown,
+            Expr::TypeAlias => {
+                println!("koko!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Ty::Unknown
+            }
             Expr::Missing => Ty::Unknown,
             Expr::Path(p) => {
                 // FIXME this could be more efficient...
@@ -810,6 +815,10 @@ impl<'a, D: HirDatabase> InferenceResultBuilder<'a, D> {
                     if let ty_app!(TypeCtor::Never) = self.infer_expr(*expr, &Expectation::none()) {
                         diverges = true;
                     };
+                }
+                Statement::TypeAlias => {
+                    println!("type alias stmt: {:#?}", stmt)
+                    // unimplemented!("TODO")
                 }
             }
         }

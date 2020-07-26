@@ -77,7 +77,7 @@ fn issue_133() {
     fn do_the_things(n: i32) -> i32 {
         n + 7
     }
-    
+
     pub fn main() {
         do_the_things(3);
     }
@@ -173,7 +173,7 @@ fn logic_op_bool() {
     }
     pub fn or(a: bool, b: bool) -> bool {
         a || b
-    }    
+    }
     "#,
     );
 }
@@ -805,7 +805,6 @@ fn incremental_compilation() {
         let events = db.log_executed(|| {
             db.file_ir(file_id);
         });
-        println!("events: {:?}", events);
         assert!(
             !format!("{:?}", events).contains("group_ir"),
             "{:#?}",
@@ -910,6 +909,19 @@ fn nested_private_recursive_fn_with_args() {
 
     pub fn main() -> f32 {
         private_fn(other())
+    }
+    "#,
+    )
+}
+
+#[test]
+fn type_alias() {
+    test_snapshot(
+        r#"
+    pub fn main() -> i64 {
+        type ty = i64;
+        let a: ty = 10;
+        a
     }
     "#,
     )

@@ -402,10 +402,11 @@ fn type_aliases_test() {
 fn type_aliases() {
     infer_snapshot(
         r#"
-    fn foo() {
-        type Typename = i32;
-        type Typename2 = Typename;
-        let a: Typename2;
+    fn foo() -> i32 {
+        type Ty = i32;
+        let a = 10;
+        let b = a + 1;
+        a + b
     }
     "#,
     )
@@ -417,15 +418,24 @@ fn infer_snapshot(text: &str) {
 }
 
 fn infer(content: &str) -> String {
+    // dbにファイルの情報を登録
     let (db, file_id) = MockDatabase::with_single_file(content);
+    // textの内容をパース. この時点で木構造の抽象構文木が完成する
+    // parse自体もtokenize -> list-baseのparse -> 木構造の作成 に分かれている気がする
+    // この時点で返却されるのは Parse<SourceFile> で、HIRではない
     let source_file = db.parse(file_id).ok().unwrap();
 
     let mut acc = String::new();
 
+    // クロージャを定義している. このクロージャの中では（おそらく）snapshotファイルの作成が実行されている
+    // infer_reusltは推論の結果　ExprId, PatIdのそれぞれに関して型を持っている
+    // ExprId, PatIdがそれぞれどこにどういうポリシーで設定されているのかはわからない
+    // BodySourceMapは、HIRのID(ExprId/PatId, あとTypeRefIdとか？)とsyntax nodeの紐付けをするやつらしい
     let mut infer_def = |infer_result: Arc<InferenceResult>,
                          body_source_map: Arc<BodySourceMap>| {
         let mut types = Vec::new();
 
+        // PatIdの推論結果に関してiterate
         for (pat, ty) in infer_result.type_of_pat.iter() {
             let syntax_ptr = match body_source_map.pat_syntax(pat) {
                 Some(sp) => sp.map(|ast| ast.syntax_node_ptr()),
@@ -434,6 +444,7 @@ fn infer(content: &str) -> String {
             types.push((syntax_ptr, ty));
         }
 
+        // ExprIdの推論結果に関してiterate
         for (expr, ty) in infer_result.type_of_expr.iter() {
             let syntax_ptr = match body_source_map.expr_syntax(expr) {
                 Some(sp) => {
@@ -455,34 +466,47 @@ fn infer(content: &str) -> String {
                 src_ptr.value.range(),
                 node.text().to_string().replace("\n", " "),
             );
+            // ここでsnapshotへの出力を作成している
             write!(
                 acc,
                 "{} '{}': {}\n",
-                range,
-                ellipsize(text, 15),
-                ty.display(&db)
+                range,               // これがもとファイルでの文字数 text unit?に対応している
+                ellipsize(text, 15), // 元ファイルの対応する文字列
+                ty.display(&db)      // 型
             )
             .unwrap();
         }
     };
 
     let mut diags = String::new();
-
     let mut diag_sink = DiagnosticSink::new(|diag| {
         write!(diags, "{}: {}\n", diag.highlight_range(), diag.message()).unwrap();
     });
 
+    // これは LocationCtx. DefDataBaseとFileIdを持ってる. 何に使ってるのかはよく知らない
     let ctx = LocationCtx::new(&db, file_id);
+
+    // ここが型推論の本体
+    println!("syntax ++++++++++++++++++++++++++++++++++++");
+    // descendantsはiteratorを返却する
+    // recursive descent parsingのdescendantsっぽい。木の上から順番にnode返却してくる
     for node in source_file.syntax().descendants() {
+        // println!("node: {:#?}", node);
+        // ast::FunctionDef::castは何をやっている?
+        // SyntaxNodeを型付きのAstNodeに変換しているっぽい. たとえばここだとFunctionDefに変換しようとしている
+        // ここでSomeが返却されるのはsytax.kindがFunctionDefのときだけ
+        // つまりこれは関数のノードだけ実行、ということになる
         if let Some(def) = ast::FunctionDef::cast(node.clone()) {
+            println!("function def: {:#?}", def); // 型がFunctionDefになってるだけで中身はnodeと同じ
             let fun = Function {
                 id: ctx.to_def(&def),
             };
-            let source_map = fun.body_source_map(&db);
+            // ここで InferenceResultを作成している
             let infer_result = fun.infer(&db);
-
+            // エラーの確認っぽいのでどうでもよさそう
             fun.diagnostics(&db, &mut diag_sink);
 
+            let source_map = fun.body_source_map(&db);
             infer_def(infer_result, source_map);
         }
     }

@@ -25,6 +25,7 @@ pub(crate) fn ir_query(db: &impl IrDatabase, file_id: FileId) -> Arc<FileIR> {
         .create_module(db.file_relative_path(file_id).as_str());
 
     let group_ir = db.group_ir(file_id);
+    // println!("after group_ir");
 
     // Generate all exposed function and wrapper function signatures.
     // Use a `BTreeMap` to guarantee deterministically ordered output.ures
@@ -58,6 +59,7 @@ pub(crate) fn ir_query(db: &impl IrDatabase, file_id: FileId) -> Arc<FileIR> {
             }
         }
     }
+    // println!("ir_query def end !!!!!!!!!!!!");
 
     let external_globals = {
         let alloc_handle = group_ir
@@ -82,6 +84,8 @@ pub(crate) fn ir_query(db: &impl IrDatabase, file_id: FileId) -> Arc<FileIR> {
     // Construct requirements for generating the bodies
     let fn_pass_manager = function::create_pass_manager(&llvm_module, db.optimization_lvl());
 
+    // println!("ir_query#######################################################");
+    // println!("functions: {:#?}", functions);
     // Generate the function bodies
     for (hir_function, llvm_function) in functions.iter() {
         function::gen_body(

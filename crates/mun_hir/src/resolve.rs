@@ -60,7 +60,7 @@ pub enum Resolution {
 }
 
 impl Resolver {
-    pub fn resolve_name(&self, db: &impl HirDatabase, name: &Name) -> PerNs<Resolution> {
+    fn resolve_name(&self, db: &impl HirDatabase, name: &Name) -> PerNs<Resolution> {
         let mut resolution = PerNs::none();
         for scope in self.scopes.iter().rev() {
             resolution = resolution.or(scope.resolve_name(db, name));
@@ -108,7 +108,6 @@ impl Scope {
             }
         }
     }
-
     //    fn collect_names(&self, db: &impl HirDatabase, f: &mut dyn FnMut(Name, PerNs<Resolution>)) {
     //        match self {
     //            Scope::ModuleScope(m) => {

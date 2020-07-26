@@ -198,6 +198,7 @@ pub enum Statement {
         initializer: Option<ExprId>,
     },
     Expr(ExprId),
+    TypeAlias,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -360,6 +361,9 @@ impl Expr {
                             }
                         }
                         Statement::Expr(e) => f(*e),
+                        Statement::TypeAlias => {
+                            println!("TODO: walk_child_exprs");
+                        }
                     }
                 }
                 if let Some(expr) = tail {
@@ -518,6 +522,7 @@ where
             }
         }
 
+        // println!("BODY%%% {:#?}", node.body()); // ここまでは来てる
         let body = self.collect_block_opt(node.body());
         self.body_expr = Some(body);
 
@@ -539,23 +544,28 @@ where
 
     fn collect_block(&mut self, block: ast::BlockExpr) -> ExprId {
         let syntax_node_ptr = AstPtr::new(&block.clone().into());
+        println!("syntax node pointer%%%\n{:#?}", syntax_node_ptr); // ここまでは来てそう
         let statements = block
             .statements()
-            .map(|s| match s.kind() {
-                ast::StmtKind::LetStmt(stmt) => {
-                    let pat = self.collect_pat_opt(stmt.pat());
-                    let type_ref = stmt
-                        .ascribed_type()
-                        .map(|t| self.type_ref_builder.alloc_from_node(&t));
-                    let initializer = stmt.initializer().map(|e| self.collect_expr(e));
-                    Statement::Let {
-                        pat,
-                        type_ref,
-                        initializer,
+            .map(|s| {
+                println!("statement: {:#?}", s); // この段階ではもう来ていない
+                match s.kind() {
+                    ast::StmtKind::LetStmt(stmt) => {
+                        let pat = self.collect_pat_opt(stmt.pat());
+                        let type_ref = stmt
+                            .ascribed_type()
+                            .map(|t| self.type_ref_builder.alloc_from_node(&t));
+                        let initializer = stmt.initializer().map(|e| self.collect_expr(e));
+                        Statement::Let {
+                            pat,
+                            type_ref,
+                            initializer,
+                        }
                     }
-                }
-                ast::StmtKind::ExprStmt(stmt) => {
-                    Statement::Expr(self.collect_expr_opt(stmt.expr()))
+                    ast::StmtKind::ExprStmt(stmt) => {
+                        Statement::Expr(self.collect_expr_opt(stmt.expr()))
+                    }
+                    ast::StmtKind::TypeAliasStmt(stmt) => Statement::TypeAlias,
                 }
             })
             .collect();
@@ -925,6 +935,7 @@ pub(crate) fn body_with_source_map_query(
 
     match def {
         DefWithBody::Function(ref f) => {
+            println!("func%%% {:#?}", f);
             let src = f.source(db);
             collector = ExprCollector::new(def, src.file_id, db);
             collector.collect_fn_body(&src.value)

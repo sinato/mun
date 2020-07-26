@@ -47,10 +47,16 @@ impl RawItems {
         let mut items = RawItems::default();
 
         let source_file = db.parse(file_id).tree();
+        // DEBUG(#sinato)
+        // println!("parser result ==============================");
+        // println!("{:#?}", source_file);
+        // println!("============================================");
+        // DEBUG(#sinato)
         let ast_id_map = db.ast_id_map(file_id);
 
         // Iterate over all items in the source file
         for item in source_file.items() {
+            // println!("item: {:#?}", item);
             let (kind, name) = match item.kind() {
                 ast::ModuleItemKind::FunctionDef(it) => {
                     (DefKind::Function((*ast_id_map).ast_id(&it)), it.name())
@@ -59,7 +65,6 @@ impl RawItems {
                     (DefKind::Struct((*ast_id_map).ast_id(&it)), it.name())
                 }
             };
-
             // If no name is provided an error is already emitted
             if let Some(name) = name {
                 let id = items.definitions.alloc(DefData {

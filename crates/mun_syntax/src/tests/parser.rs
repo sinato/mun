@@ -327,7 +327,7 @@ fn struct_field_index() {
         foo.0.1
         foo.10
         foo.01  // index: .0
-        foo.0 1 // index: .0 
+        foo.0 1 // index: .0
         foo.a.0
     }
     "#,
