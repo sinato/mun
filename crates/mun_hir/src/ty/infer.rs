@@ -816,8 +816,25 @@ impl<'a, D: HirDatabase> InferenceResultBuilder<'a, D> {
                         diverges = true;
                     };
                 }
-                Statement::TypeAlias => {
-                    println!("type alias stmt: {:#?}", stmt)
+                Statement::TypeAlias {
+                    pat,
+                    type_ref,
+                    initializer,
+                } => {
+                    println!("type alias stmt: {:#?}", stmt);
+                    let decl_ty = type_ref
+                        .as_ref()
+                        .map(|tr| self.resolve_type(*tr))
+                        .unwrap_or(Ty::Unknown);
+                    //let decl_ty = self.insert_type_vars(decl_ty);
+                    let ty = if let Some(expr) = initializer {
+                        self.infer_expr_coerce(*expr, &Expectation::has_type(decl_ty))
+                    } else {
+                        decl_ty
+                    };
+
+                    let ty = self.resolve_ty_as_far_as_possible(ty);
+                    self.infer_pat(*pat, ty);
                     // unimplemented!("TODO")
                 }
             }

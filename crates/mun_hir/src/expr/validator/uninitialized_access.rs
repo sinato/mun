@@ -135,7 +135,7 @@ impl<'d, D: HirDatabase> ExprValidator<'d, D> {
                                 return;
                             }
                         }
-                        Statement::TypeAlias => {
+                        Statement::TypeAlias { .. } => {
                             println!("TODO: validate_expr_access");
                         }
                     }

@@ -198,7 +198,11 @@ pub enum Statement {
         initializer: Option<ExprId>,
     },
     Expr(ExprId),
-    TypeAlias,
+    TypeAlias {
+        pat: PatId,
+        type_ref: Option<TypeRefId>,
+        initializer: Option<ExprId>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -361,7 +365,7 @@ impl Expr {
                             }
                         }
                         Statement::Expr(e) => f(*e),
-                        Statement::TypeAlias => {
+                        Statement::TypeAlias { .. } => {
                             println!("TODO: walk_child_exprs");
                         }
                     }
@@ -565,7 +569,19 @@ where
                     ast::StmtKind::ExprStmt(stmt) => {
                         Statement::Expr(self.collect_expr_opt(stmt.expr()))
                     }
-                    ast::StmtKind::TypeAliasStmt(stmt) => Statement::TypeAlias,
+                    ast::StmtKind::TypeAliasStmt(stmt) => {
+                        println!("TODO collect_block");
+                        let pat = self.collect_pat_opt(stmt.pat());
+                        let type_ref = stmt
+                            .ascribed_type()
+                            .map(|t| self.type_ref_builder.alloc_from_node(&t));
+                        let initializer = stmt.initializer().map(|e| self.collect_expr(e));
+                        Statement::TypeAlias {
+                            pat,
+                            type_ref,
+                            initializer,
+                        }
+                    }
                 }
             })
             .collect();
