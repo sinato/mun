@@ -235,7 +235,8 @@ fn type_alias() {
     fn foo() {
         type Typename = i32;
         type Typename2 = Typename;
-        let a:Typename2;
+        let a: Typename2 = 1;
+        let b: i32;
     }
     "#,
     )

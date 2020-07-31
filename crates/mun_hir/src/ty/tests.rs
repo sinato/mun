@@ -403,9 +403,10 @@ fn type_aliases() {
     infer_snapshot(
         r#"
     fn foo() -> i32 {
-        type Ty = i32;
-        let a = 10;
+        let a: i32 = 10;
         let b = a + 1;
+        type Ty = i32;
+        let c: Ty = 1.0;
         a + b
     }
     "#,

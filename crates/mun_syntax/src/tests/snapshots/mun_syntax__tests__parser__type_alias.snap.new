@@ -1,9 +1,9 @@
 ---
 source: crates/mun_syntax/src/tests/parser.rs
-expression: "fn foo() {\n    type Typename = i32;\n    type Typename2 = Typename;\n    let a:Typename2;\n}"
+expression: "fn foo() {\n    type Typename = i32;\n    type Typename2 = Typename;\n    let a: Typename2 = 1;\n    let b: i32;\n}"
 ---
-doko??? SOURCE_FILE@[0; 89)
-  FUNCTION_DEF@[0; 89)
+SOURCE_FILE@[0; 110)
+  FUNCTION_DEF@[0; 110)
     FN_KW@[0; 2) "fn"
     WHITESPACE@[2; 3) " "
     NAME@[3; 6)
@@ -12,10 +12,10 @@ doko??? SOURCE_FILE@[0; 89)
       L_PAREN@[6; 7) "("
       R_PAREN@[7; 8) ")"
     WHITESPACE@[8; 9) " "
-    BLOCK_EXPR@[9; 89)
+    BLOCK_EXPR@[9; 110)
       L_CURLY@[9; 10) "{"
       WHITESPACE@[10; 15) "\n    "
-      TYPE_ALIAS_DEF@[15; 35)
+      TYPE_ALIAS_STMT@[15; 35)
         TYPE_KW@[15; 19) "type"
         WHITESPACE@[19; 20) " "
         NAME@[20; 28)
@@ -30,7 +30,7 @@ doko??? SOURCE_FILE@[0; 89)
                 IDENT@[31; 34) "i32"
         SEMI@[34; 35) ";"
       WHITESPACE@[35; 40) "\n    "
-      TYPE_ALIAS_DEF@[40; 66)
+      TYPE_ALIAS_STMT@[40; 66)
         TYPE_KW@[40; 44) "type"
         WHITESPACE@[44; 45) " "
         NAME@[45; 54)
@@ -45,19 +45,40 @@ doko??? SOURCE_FILE@[0; 89)
                 IDENT@[57; 65) "Typename"
         SEMI@[65; 66) ";"
       WHITESPACE@[66; 71) "\n    "
-      LET_STMT@[71; 87)
+      LET_STMT@[71; 92)
         LET_KW@[71; 74) "let"
         WHITESPACE@[74; 75) " "
         BIND_PAT@[75; 76)
           NAME@[75; 76)
             IDENT@[75; 76) "a"
         COLON@[76; 77) ":"
-        PATH_TYPE@[77; 86)
-          PATH@[77; 86)
-            PATH_SEGMENT@[77; 86)
-              NAME_REF@[77; 86)
-                IDENT@[77; 86) "Typename2"
-        SEMI@[86; 87) ";"
-      WHITESPACE@[87; 88) "\n"
-      R_CURLY@[88; 89) "}"
+        WHITESPACE@[77; 78) " "
+        PATH_TYPE@[78; 87)
+          PATH@[78; 87)
+            PATH_SEGMENT@[78; 87)
+              NAME_REF@[78; 87)
+                IDENT@[78; 87) "Typename2"
+        WHITESPACE@[87; 88) " "
+        EQ@[88; 89) "="
+        WHITESPACE@[89; 90) " "
+        LITERAL@[90; 91)
+          INT_NUMBER@[90; 91) "1"
+        SEMI@[91; 92) ";"
+      WHITESPACE@[92; 97) "\n    "
+      LET_STMT@[97; 108)
+        LET_KW@[97; 100) "let"
+        WHITESPACE@[100; 101) " "
+        BIND_PAT@[101; 102)
+          NAME@[101; 102)
+            IDENT@[101; 102) "b"
+        COLON@[102; 103) ":"
+        WHITESPACE@[103; 104) " "
+        PATH_TYPE@[104; 107)
+          PATH@[104; 107)
+            PATH_SEGMENT@[104; 107)
+              NAME_REF@[104; 107)
+                IDENT@[104; 107) "i32"
+        SEMI@[107; 108) ";"
+      WHITESPACE@[108; 109) "\n"
+      R_CURLY@[109; 110) "}"
 

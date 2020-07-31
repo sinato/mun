@@ -199,9 +199,7 @@ pub enum Statement {
     },
     Expr(ExprId),
     TypeAlias {
-        pat: PatId,
         type_ref: Option<TypeRefId>,
-        initializer: Option<ExprId>,
     },
 }
 
@@ -571,16 +569,10 @@ where
                     }
                     ast::StmtKind::TypeAliasStmt(stmt) => {
                         println!("TODO collect_block");
-                        let pat = self.collect_pat_opt(stmt.pat());
                         let type_ref = stmt
                             .ascribed_type()
                             .map(|t| self.type_ref_builder.alloc_from_node(&t));
-                        let initializer = stmt.initializer().map(|e| self.collect_expr(e));
-                        Statement::TypeAlias {
-                            pat,
-                            type_ref,
-                            initializer,
-                        }
+                        Statement::TypeAlias { type_ref }
                     }
                 }
             })

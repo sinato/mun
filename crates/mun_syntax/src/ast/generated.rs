@@ -1550,11 +1550,7 @@ impl AstNode for TypeAliasStmt {
 }
 impl ast::TypeAscriptionOwner for TypeAliasStmt {}
 impl TypeAliasStmt {
-    pub fn pat(&self) -> Option<Pat> {
-        super::child_opt(self)
-    }
-
-    pub fn initializer(&self) -> Option<Expr> {
+    pub fn aliastype(&self) -> Option<TypeRef> {
         super::child_opt(self)
     }
 }

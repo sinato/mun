@@ -9,7 +9,7 @@ use crate::{
     resolve::{Resolution, Resolver},
     ty::infer::diagnostics::InferenceDiagnostic,
     ty::infer::type_variable::TypeVariableTable,
-    ty::lower::LowerDiagnostic,
+    ty::lower::{LowerDiagnostic, LowerResult},
     ty::op,
     ty::{Ty, TypableDef},
     type_ref::TypeRefId,
@@ -290,8 +290,6 @@ impl<'a, D: HirDatabase> InferenceResultBuilder<'a, D> {
     ) -> Ty {
         let body = Arc::clone(&self.body); // avoid borrow checker problem
                                            // ここまでtype def statementがきてない
-        println!("infer_expr_inner!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        println!("body: {:#?}", body[tgt_expr]);
         let ty = match &body[tgt_expr] {
             Expr::TypeAlias => {
                 println!("koko!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -797,18 +795,23 @@ impl<'a, D: HirDatabase> InferenceResultBuilder<'a, D> {
                     type_ref,
                     initializer,
                 } => {
+                    // ここで値をとってきていると思う. ここでunknowsになっているはず
+                    println!("let stmt: {:#?}", stmt);
                     let decl_ty = type_ref
                         .as_ref()
                         .map(|tr| self.resolve_type(*tr))
                         .unwrap_or(Ty::Unknown);
                     //let decl_ty = self.insert_type_vars(decl_ty);
+                    // ここで値を初期化していそう.
                     let ty = if let Some(expr) = initializer {
+                        // infer_expr_coerceの第二引数で指定した型を渡して、有ってるかどうか確認してる
                         self.infer_expr_coerce(*expr, &Expectation::has_type(decl_ty))
                     } else {
                         decl_ty
                     };
 
                     let ty = self.resolve_ty_as_far_as_possible(ty);
+                    println!("let statmenet!!!! {:#?}", ty);
                     self.infer_pat(*pat, ty);
                 }
                 Statement::Expr(expr) => {
@@ -816,25 +819,42 @@ impl<'a, D: HirDatabase> InferenceResultBuilder<'a, D> {
                         diverges = true;
                     };
                 }
-                Statement::TypeAlias {
-                    pat,
-                    type_ref,
-                    initializer,
-                } => {
+                Statement::TypeAlias { type_ref } => {
+                    // TODO ここで型のHashMapに情報をいれる
                     println!("type alias stmt: {:#?}", stmt);
+
+                    // ここでtype_refは、type statementでは設定されないはずなので必要ない. parserからも消してしまいたい
+                    // ここは選択の余地なくinfer_expr_coerceの返り値になるはず。もし値が指定されていないならundefinedにするべき?
+
+                    /*
+                    こんな感じかなと思ったけどどうやら違う。type_refに値を突っ込んだからｎそっちから取ってこないといけない
+                    let ty = if let Some(expr) = initializer {
+                        // self.infer_expr_coerce(*expr, &Expectation::has_type(decl_ty))
+                        self.infer_expr_inner(*expr, &Expectation::none(), &CheckParams::default())
+                    } else {
+                        panic!("TODO: error handling")
+                    };
+                    */
+                    // これはなにやってるのかよくわかってない. 参照をたどって可能な限り組み込み型を使うようにしてる気がするけど
+                    // let ty = self.resolve_ty_as_far_as_possible(ty);
+
+                    // infer_patの中でset_pat_typeしている。つまりここで値をセットしている
+                    // このpatとtyを適切に設定するのが大切？
+                    // ここのty, 渡ってきたやつそのまま突っ込んだらダメなのか？ 型を合わせないとダメか......
+                    // 型を合わせるというか, 右辺の値を型解決していれる感じだ。
+                    let a = stmt.alias_type();
                     let decl_ty = type_ref
                         .as_ref()
                         .map(|tr| self.resolve_type(*tr))
                         .unwrap_or(Ty::Unknown);
-                    //let decl_ty = self.insert_type_vars(decl_ty);
-                    let ty = if let Some(expr) = initializer {
-                        self.infer_expr_coerce(*expr, &Expectation::has_type(decl_ty))
-                    } else {
-                        decl_ty
-                    };
 
-                    let ty = self.resolve_ty_as_far_as_possible(ty);
-                    self.infer_pat(*pat, ty);
+                    // 型のmapは[] type_refs: Arena<TypeRefId, TypeRef>　て感じだった
+                    // 今patは&PatIdになってるがこれがTypeRefじゃないとダメだ
+
+                    // これで変数として type Ty = i32; のTyをi32にくっつけることはできたけど、それが型解決のときに使われない.
+                    // infer_patの中でセットしてるやつはどうやらlet a: [type] のところでは呼び出されないらしい
+                    // となるとやはり既存のメソッドではなく型解決のときに参照されるMapに直接値を入れなければなるまい.....
+                    // self.infer_pat(*pat, decl_ty);
                     // unimplemented!("TODO")
                 }
             }
@@ -857,6 +877,18 @@ impl<'a, D: HirDatabase> InferenceResultBuilder<'a, D> {
         } else {
             ty
         }
+    }
+
+    /// Replaces Ty::Unknown by a new type var, so we can maybe still infer it.
+    fn insert_type_vars_shallow(&mut self, ty: Ty) -> Ty {
+        match ty {
+            Ty::Unknown => self.type_variables.new_type_var(),
+            _ => ty,
+        }
+    }
+
+    fn insert_type_vars(&mut self, ty: Ty) -> Ty {
+        ty.fold(&mut |ty| self.insert_type_vars_shallow(ty))
     }
 
     fn infer_break(&mut self, tgt_expr: ExprId, expr: Option<ExprId>) -> Ty {
